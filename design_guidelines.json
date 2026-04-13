@@ -1,0 +1,124 @@
+{
+  "theme": "Light",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "emotional_tone": "Authoritative, functional, clean, and highly structured.",
+  "typography": {
+    "headings": {
+      "family": "Cabinet Grotesk, sans-serif",
+      "weights": ["500", "700", "900"],
+      "tracking": "tracking-tight",
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight font-bold",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-bold",
+      "h3": "text-xl sm:text-2xl tracking-tight font-semibold",
+      "h4": "text-lg sm:text-xl font-medium"
+    },
+    "body": {
+      "family": "IBM Plex Sans, sans-serif",
+      "weights": ["400", "500", "600"],
+      "size": "text-sm md:text-base",
+      "line_height": "leading-relaxed"
+    },
+    "labels": {
+      "style": "uppercase text-xs tracking-[0.15em] font-semibold text-slate-500"
+    }
+  },
+  "colors": {
+    "background": {
+      "primary": "bg-white",
+      "sidebar": "bg-slate-50",
+      "kanban_column": "bg-slate-100",
+      "modal_overlay": "bg-slate-900/40 backdrop-blur-sm"
+    },
+    "text": {
+      "primary": "text-slate-900",
+      "secondary": "text-slate-500",
+      "disabled": "text-slate-400",
+      "inverse": "text-white"
+    },
+    "brand": {
+      "primary": "bg-blue-700 hover:bg-blue-800 text-white",
+      "accent": "bg-amber-400 hover:bg-amber-500 text-slate-900"
+    },
+    "status": {
+      "success": "bg-emerald-500 text-white",
+      "warning": "bg-amber-400 text-slate-900",
+      "danger": "bg-red-500 text-white",
+      "info": "bg-blue-500 text-white",
+      "todo": "bg-slate-200 text-slate-700"
+    },
+    "border": {
+      "default": "border-slate-200",
+      "focus": "ring-2 ring-blue-700 ring-offset-1",
+      "hover": "border-slate-300"
+    }
+  },
+  "spacing_and_layout": {
+    "container_padding": "p-6 md:p-8 lg:p-12",
+    "widget_padding": "p-4 md:p-6",
+    "grid_system": "Control Room Grid",
+    "dashboard_grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
+    "kanban_grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto",
+    "radii": {
+      "cards": "rounded-lg",
+      "buttons": "rounded-md",
+      "inputs": "rounded-md",
+      "tags": "rounded-full"
+    },
+    "shadows": {
+      "card": "shadow-sm",
+      "dropdown": "shadow-lg shadow-slate-200/50",
+      "modal": "shadow-2xl shadow-slate-900/10"
+    }
+  },
+  "component_rules": {
+    "buttons": "Solid brand color or clean white with 1px border. Never use generic drop shadows. Ensure contrast ratio is > 4.5:1. Apply data-testid.",
+    "inputs": "Shadcn standard but enforce border-slate-200. Focus ring MUST be ring-blue-700.",
+    "cards": "Flat background (bg-white), 1px subtle border (border-slate-200), minimal shadow (shadow-sm). For hover, slight lift (-translate-y-1) and shadow-md.",
+    "tables": "Dense. Header uses uppercase tracking-wide labels. Rows have border-b border-slate-100. Hover state: bg-slate-50.",
+    "sidebar": "w-64 fixed on desktop. Hidden behind hamburger on mobile. bg-slate-50 with border-r border-slate-200.",
+    "kanban_cards": "bg-white border border-slate-200 shadow-sm rounded-md p-3 hover:border-blue-300 cursor-grab active:cursor-grabbing transition-colors.",
+    "status_tags": "Small, rounded-full px-2 py-0.5 text-xs font-medium. Colors tied strictly to status (e.g., green for complete, amber for in progress)."
+  },
+  "motion": {
+    "hover": "transition-colors duration-200 ease-in-out",
+    "modal_enter": "animate-in fade-in zoom-in-95 duration-200",
+    "dropdown_enter": "animate-in slide-in-from-top-2 fade-in duration-150"
+  },
+  "icons_and_assets": {
+    "icon_library": "@phosphor-icons/react",
+    "icon_style": "weight='regular' or 'duotone' for active states. Size: 18px-24px depending on context.",
+    "images": [
+      {
+        "category": "user_avatar_1",
+        "url": "https://images.unsplash.com/photo-1576558656222-ba66febe3dec?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
+        "description": "Avatar for active user or project manager"
+      },
+      {
+        "category": "user_avatar_2",
+        "url": "https://images.unsplash.com/photo-1769636929388-99eff95d3bf1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
+        "description": "Avatar for team member"
+      },
+      {
+        "category": "user_avatar_3",
+        "url": "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
+        "description": "Avatar for another team member"
+      },
+      {
+        "category": "empty_state_background",
+        "url": "https://images.unsplash.com/photo-1521202850558-0110494d0457?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMGFyY2hpdGVjdHVyZSUyMHdoaXRlfGVufDB8fHx8MTc3NjEwNzUzOXww&ixlib=rb-4.1.0&q=85",
+        "description": "Architectural geometric white background for login screen or empty dashboards"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Run: yarn add @phosphor-icons/react",
+    "Add 'Cabinet Grotesk' and 'IBM Plex Sans' fonts via Google Fonts or standard CSS imports.",
+    "Implement the Workspace -> Projects -> Tasks hierarchy. Use the sidebar to display workspaces and nested projects.",
+    "Ensure 'CONTROL ROOM GRID' is used for dashboards (grid-cols-1 md:grid-cols-3 lg:grid-cols-4). Maximize density.",
+    "Use strict 1px borders (border-slate-200) instead of shadows for separating sections, except for popovers and modals.",
+    "For task views, implement List (table-like dense rows), Board (Kanban style, gray columns, white cards), and Calendar (grid layout).",
+    "Time tracking widget should be small, persistent or easily accessible from the header, with a clear play/stop state.",
+    "Avoid using generic purple or teal for primary actions; strictly adhere to blue-700 and amber-400 accents.",
+    "Apply data-testid attributes to ALL interactive elements."
+  ]
+}
