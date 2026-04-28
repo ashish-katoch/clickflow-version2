@@ -217,6 +217,9 @@ class ClickFlowV3APITester:
         
         # Test All Bugs endpoint
         self.run_test("Get All Bugs", "GET", "bugs/all", 200)
+        
+        # Test bug attachments
+        self.test_bug_attachments()
 
     def test_comments(self):
         """Test comments functionality with entity_id and entity_type"""
@@ -275,6 +278,40 @@ class ClickFlowV3APITester:
         
         # Mark all as read
         self.run_test("Mark All Read", "POST", "notifications/mark-read", 200)
+
+    def test_bug_attachments(self):
+        """Test bug attachment functionality"""
+        print("\n=== BUG ATTACHMENTS TESTS ===")
+        
+        if not self.bug_id:
+            print("❌ Skipping attachment tests - no bug ID available")
+            return
+        
+        # Add attachment via URL
+        success, response = self.run_test(
+            "Add Bug Attachment",
+            "POST",
+            f"bugs/{self.bug_id}/attachments",
+            200,
+            data={
+                "file_name": "test-image.png",
+                "file_url": "https://via.placeholder.com/300x200/6366f1/ffffff?text=Test+Image",
+                "file_type": "image/png"
+            }
+        )
+        attachment_id = None
+        if success and response.get('id'):
+            attachment_id = response['id']
+            print(f"   Created attachment ID: {attachment_id}")
+        
+        # Remove attachment
+        if attachment_id:
+            self.run_test(
+                "Remove Bug Attachment",
+                "DELETE",
+                f"bugs/{self.bug_id}/attachments/{attachment_id}",
+                200
+            )
 
     def test_members(self):
         """Test members functionality"""

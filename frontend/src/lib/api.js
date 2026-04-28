@@ -21,6 +21,8 @@ export const getAllBugs = () => api.get('/bugs/all').then(r => r.data);
 export const createBug = (projectId, data) => api.post(`/bugs?project_id=${projectId}`, data).then(r => r.data);
 export const updateBug = (id, data) => api.put(`/bugs/${id}`, data).then(r => r.data);
 export const deleteBug = (id) => api.delete(`/bugs/${id}`).then(r => r.data);
+export const addBugAttachment = (bugId, data) => api.post(`/bugs/${bugId}/attachments`, data).then(r => r.data);
+export const removeBugAttachment = (bugId, attId) => api.delete(`/bugs/${bugId}/attachments/${attId}`).then(r => r.data);
 
 // Comments
 export const getComments = (entityId, entityType = 'task') => api.get(`/comments?entity_id=${entityId}&entity_type=${entityType}`).then(r => r.data);

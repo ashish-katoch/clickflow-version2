@@ -80,3 +80,32 @@ async def delete_bug(bug_id: str, user=Depends(get_current_user)):
     await db.bugs.delete_one({"id": bug_id})
     await db.comments.delete_many({"entity_id": bug_id})
     return {"message": "Bug deleted"}
+
+# ─── Attachments ───
+from pydantic import BaseModel
+
+class AttachmentPayload(BaseModel):
+    file_name: str
+    file_url: str
+    file_type: str = "image/png"
+
+@router.post("/{bug_id}/attachments")
+async def add_attachment(bug_id: str, payload: AttachmentPayload, user=Depends(get_current_user)):
+    bug = await db.bugs.find_one({"id": bug_id}, {"_id": 0})
+    if not bug:
+        raise HTTPException(status_code=404, detail="Bug not found")
+    att = {
+        "id": str(uuid.uuid4()),
+        "file_name": payload.file_name,
+        "file_url": payload.file_url,
+        "file_type": payload.file_type,
+        "uploaded_by": user["_id"],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.bugs.update_one({"id": bug_id}, {"$push": {"attachments": att}})
+    return att
+
+@router.delete("/{bug_id}/attachments/{attachment_id}")
+async def remove_attachment(bug_id: str, attachment_id: str, user=Depends(get_current_user)):
+    await db.bugs.update_one({"id": bug_id}, {"$pull": {"attachments": {"id": attachment_id}}})
+    return {"message": "Attachment removed"}

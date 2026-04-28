@@ -22,10 +22,12 @@ export default function BugListPage() {
   const [members, setMembers] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
+  const [filterAssignee, setFilterAssignee] = useState('all');
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
+  const [newAssignee, setNewAssignee] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetch = useCallback(async () => {
@@ -33,16 +35,17 @@ export default function BugListPage() {
       const params = { project_id: projectId };
       if (filterStatus !== 'all') params.status = filterStatus;
       if (filterPriority !== 'all') params.priority = filterPriority;
+      if (filterAssignee !== 'all') params.assignee_id = filterAssignee;
       const [b, p, m] = await Promise.all([getBugs(params), getProject(projectId), getMembers()]);
       setBugs(b); setProject(p); setMembers(m);
     } catch {} finally { setLoading(false); }
-  }, [projectId, filterStatus, filterPriority]);
+  }, [projectId, filterStatus, filterPriority, filterAssignee]);
   useEffect(() => { fetch(); }, [fetch]);
 
   const handleCreate = async () => {
     if (!newTitle.trim()) return;
-    await createBug(projectId, { title: newTitle, description: newDesc, priority: newPriority });
-    setShowCreate(false); setNewTitle(''); setNewDesc(''); setNewPriority('medium');
+    await createBug(projectId, { title: newTitle, description: newDesc, priority: newPriority, assignee_id: (newAssignee && newAssignee !== '__none__') ? newAssignee : null });
+    setShowCreate(false); setNewTitle(''); setNewDesc(''); setNewPriority('medium'); setNewAssignee('');
     fetch();
   };
 
@@ -76,6 +79,13 @@ export default function BugListPage() {
               <SelectItem value="critical">Critical</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+            <SelectTrigger className="h-7 text-xs border-zinc-800 bg-transparent text-zinc-400 w-[130px]" data-testid="filter-assignee"><SelectValue /></SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
+              <SelectItem value="all">All Assignees</SelectItem>
+              {members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Dialog open={showCreate} onOpenChange={setShowCreate}>
             <DialogTrigger asChild>
               <button data-testid="report-bug-btn" className="h-8 px-3 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-medium hover:bg-red-500/20 transition-colors flex items-center gap-1.5">
@@ -96,6 +106,13 @@ export default function BugListPage() {
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={newAssignee || '__none__'} onValueChange={v => setNewAssignee(v === '__none__' ? '' : v)}>
+                  <SelectTrigger className="h-9 border-zinc-800 bg-transparent text-zinc-300 text-sm" data-testid="bug-assignee-select"><SelectValue placeholder="Assign to..." /></SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-800">
+                    <SelectItem value="__none__">Unassigned</SelectItem>
+                    {members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <button data-testid="submit-bug-btn" onClick={handleCreate} className="h-9 w-full rounded-md bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">Report</button>

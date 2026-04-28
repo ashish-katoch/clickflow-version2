@@ -6,7 +6,7 @@ import { Hexagon, LayoutGrid, CheckSquare, Bug, Plus, LogOut, ChevronDown, Folde
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 
 const PROJECT_COLORS = ['#6366f1','#f43f5e','#f59e0b','#10b981','#06b6d4','#8b5cf6','#ec4899','#f97316'];
-const navLink = (isActive) => `group flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors ${isActive ? 'bg-zinc-800 text-zinc-50' : 'text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800/50'}`;
+const navLink = (isActive) => `group flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'theme-text-secondary hover:theme-text hover:bg-zinc-800/50'}`;
 
 export default function AppSidebar() {
   const { user, logout } = useAuth();
@@ -32,9 +32,9 @@ export default function AppSidebar() {
   };
 
   return (
-    <div className="w-60 flex-shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950 z-10" data-testid="app-sidebar">
+    <div className="w-60 flex-shrink-0 flex flex-col border-r theme-sidebar z-10" data-testid="app-sidebar">
       {/* Brand */}
-      <div className="px-4 h-14 flex items-center gap-2 border-b border-zinc-800">
+      <div className="px-4 h-14 flex items-center gap-2 border-b theme-border">
         <Hexagon size={20} className="text-indigo-400" />
         <span className="text-sm font-bold tracking-tight" style={{ fontFamily: 'Manrope' }}>ClickFlow</span>
       </div>
@@ -111,7 +111,7 @@ export default function AppSidebar() {
       </div>
 
       {/* User */}
-      <div className="px-3 py-3 border-t border-zinc-800 flex items-center justify-between">
+      <div className="px-3 py-3 border-t theme-border flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
             <span className="text-[10px] font-bold text-white">{user?.name?.[0]?.toUpperCase() || 'U'}</span>

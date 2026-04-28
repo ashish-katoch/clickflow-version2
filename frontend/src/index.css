@@ -40,12 +40,70 @@ h1, h2, h3, h4, h5, h6 {
     --ring: 240 5% 60%;
     --radius: 0.5rem;
   }
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 6%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 6%;
+    --primary: 240 6% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 240 6% 64%;
+  }
 }
 
 @layer base {
   * { @apply border-border; }
   body { @apply bg-background text-foreground; }
 }
+
+/* Theme-aware overrides */
+.light body, .light { background: #ffffff; color: #0a0a0f; }
+.light ::-webkit-scrollbar-thumb { background: #d4d4d8; }
+.light ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+
+/* Theme-aware component classes */
+.theme-surface { @apply bg-zinc-900/50; }
+.light .theme-surface { @apply bg-zinc-50; }
+.theme-surface-hover { @apply hover:bg-zinc-800/40; }
+.light .theme-surface-hover { @apply hover:bg-zinc-100; }
+.theme-border { @apply border-zinc-800; }
+.light .theme-border { @apply border-zinc-200; }
+.theme-text { @apply text-zinc-50; }
+.light .theme-text { @apply text-zinc-900; }
+.theme-text-secondary { @apply text-zinc-400; }
+.light .theme-text-secondary { @apply text-zinc-500; }
+.theme-text-muted { @apply text-zinc-600; }
+.light .theme-text-muted { @apply text-zinc-400; }
+.theme-bg { @apply bg-zinc-950; }
+.light .theme-bg { @apply bg-white; }
+.theme-bg-main { background: #0E0E11; }
+.light .theme-bg-main { background: #f8f8fa; }
+.theme-card { @apply bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/40 hover:border-zinc-700; }
+.light .theme-card { @apply bg-white border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300; }
+.theme-input { @apply border-zinc-800 bg-transparent text-zinc-50 placeholder:text-zinc-500; }
+.light .theme-input { @apply border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400; }
+.theme-dropdown { @apply bg-zinc-900 border-zinc-800; }
+.light .theme-dropdown { @apply bg-white border-zinc-200; }
+.theme-header { @apply bg-zinc-950/80 border-zinc-800; }
+.light .theme-header { @apply bg-white/80 border-zinc-200; }
+.theme-sidebar { @apply bg-zinc-950 border-zinc-800; }
+.light .theme-sidebar { @apply bg-zinc-50 border-zinc-200; }
+.theme-chip { @apply bg-zinc-800 text-zinc-300; }
+.light .theme-chip { @apply bg-zinc-100 text-zinc-600; }
+.theme-btn-primary { @apply bg-white text-black hover:bg-zinc-200; }
+.light .theme-btn-primary { @apply bg-zinc-900 text-white hover:bg-zinc-800; }
 
 @layer base {
   [data-debug-wrapper="true"] { display: contents !important; }
