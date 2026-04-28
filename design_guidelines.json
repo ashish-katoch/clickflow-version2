@@ -1,124 +1,80 @@
 {
-  "theme": "Light",
-  "archetype": "4 (Swiss & High-Contrast)",
-  "emotional_tone": "Authoritative, functional, clean, and highly structured.",
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast)",
   "typography": {
     "headings": {
-      "family": "Cabinet Grotesk, sans-serif",
-      "weights": ["500", "700", "900"],
-      "tracking": "tracking-tight",
-      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight font-bold",
-      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-bold",
-      "h3": "text-xl sm:text-2xl tracking-tight font-semibold",
-      "h4": "text-lg sm:text-xl font-medium"
+      "family": "Manrope",
+      "import_url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
+      "weights": ["400", "500", "600", "700", "800"],
+      "class": "font-sans font-medium tracking-tight"
     },
     "body": {
-      "family": "IBM Plex Sans, sans-serif",
+      "family": "Inter",
+      "import_url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap",
       "weights": ["400", "500", "600"],
-      "size": "text-sm md:text-base",
-      "line_height": "leading-relaxed"
-    },
-    "labels": {
-      "style": "uppercase text-xs tracking-[0.15em] font-semibold text-slate-500"
+      "class": "font-sans text-sm"
     }
   },
   "colors": {
-    "background": {
-      "primary": "bg-white",
-      "sidebar": "bg-slate-50",
-      "kanban_column": "bg-slate-100",
-      "modal_overlay": "bg-slate-900/40 backdrop-blur-sm"
-    },
-    "text": {
-      "primary": "text-slate-900",
-      "secondary": "text-slate-500",
-      "disabled": "text-slate-400",
-      "inverse": "text-white"
-    },
-    "brand": {
-      "primary": "bg-blue-700 hover:bg-blue-800 text-white",
-      "accent": "bg-amber-400 hover:bg-amber-500 text-slate-900"
-    },
+    "background": "bg-zinc-950",
+    "surface": "bg-zinc-900/50",
+    "surface_hover": "hover:bg-zinc-800/50",
+    "border": "border-zinc-800",
+    "text_primary": "text-zinc-50",
+    "text_secondary": "text-zinc-400",
+    "primary_button": "bg-white text-black hover:bg-zinc-200",
+    "accent": "text-indigo-400",
     "status": {
-      "success": "bg-emerald-500 text-white",
-      "warning": "bg-amber-400 text-slate-900",
-      "danger": "bg-red-500 text-white",
-      "info": "bg-blue-500 text-white",
-      "todo": "bg-slate-200 text-slate-700"
-    },
-    "border": {
-      "default": "border-slate-200",
-      "focus": "ring-2 ring-blue-700 ring-offset-1",
-      "hover": "border-slate-300"
+      "backlog": "text-zinc-500",
+      "todo": "text-zinc-300",
+      "in_progress": "text-amber-500",
+      "qa": "text-blue-400",
+      "verified": "text-emerald-500",
+      "bug": "text-red-500"
     }
   },
-  "spacing_and_layout": {
-    "container_padding": "p-6 md:p-8 lg:p-12",
-    "widget_padding": "p-4 md:p-6",
-    "grid_system": "Control Room Grid",
-    "dashboard_grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
-    "kanban_grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto",
-    "radii": {
-      "cards": "rounded-lg",
-      "buttons": "rounded-md",
-      "inputs": "rounded-md",
-      "tags": "rounded-full"
-    },
-    "shadows": {
-      "card": "shadow-sm",
-      "dropdown": "shadow-lg shadow-slate-200/50",
-      "modal": "shadow-2xl shadow-slate-900/10"
-    }
+  "layout_rules": {
+    "app_container": "flex h-screen w-full bg-zinc-950 text-zinc-50 overflow-hidden font-sans",
+    "sidebar": "w-64 flex-shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950 z-10",
+    "main_wrapper": "flex-1 flex flex-col min-w-0 bg-[#0E0E11] relative",
+    "header": "h-14 flex-shrink-0 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-10",
+    "content_area": "flex-1 overflow-y-auto overflow-x-hidden p-6",
+    "kanban_board": "flex h-full gap-4 overflow-x-auto pb-4",
+    "kanban_column": "w-[320px] flex-shrink-0 flex flex-col gap-3",
+    "right_panel_container": "absolute inset-y-0 right-0 w-[450px] bg-zinc-950 border-l border-zinc-800 shadow-2xl z-50 transform transition-transform duration-300 ease-[0.16,1,0.3,1]",
+    "list_view": "flex flex-col gap-1 w-full max-w-5xl mx-auto"
   },
   "component_rules": {
-    "buttons": "Solid brand color or clean white with 1px border. Never use generic drop shadows. Ensure contrast ratio is > 4.5:1. Apply data-testid.",
-    "inputs": "Shadcn standard but enforce border-slate-200. Focus ring MUST be ring-blue-700.",
-    "cards": "Flat background (bg-white), 1px subtle border (border-slate-200), minimal shadow (shadow-sm). For hover, slight lift (-translate-y-1) and shadow-md.",
-    "tables": "Dense. Header uses uppercase tracking-wide labels. Rows have border-b border-slate-100. Hover state: bg-slate-50.",
-    "sidebar": "w-64 fixed on desktop. Hidden behind hamburger on mobile. bg-slate-50 with border-r border-slate-200.",
-    "kanban_cards": "bg-white border border-slate-200 shadow-sm rounded-md p-3 hover:border-blue-300 cursor-grab active:cursor-grabbing transition-colors.",
-    "status_tags": "Small, rounded-full px-2 py-0.5 text-xs font-medium. Colors tied strictly to status (e.g., green for complete, amber for in progress)."
+    "buttons": "h-8 px-3 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400",
+    "icon_buttons": "h-8 w-8 inline-flex items-center justify-center rounded-md text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-colors",
+    "task_card": "group flex flex-col gap-2 p-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/40 hover:border-zinc-700 transition-all cursor-pointer text-sm shadow-sm",
+    "list_row": "group flex items-center gap-3 px-4 py-2.5 rounded-md border border-transparent hover:border-zinc-800 hover:bg-zinc-900/40 transition-colors cursor-pointer text-sm",
+    "badges": "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border border-zinc-800 bg-zinc-900 text-zinc-300",
+    "inputs": "flex h-8 w-full rounded-md border border-zinc-800 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-50",
+    "right_panel_inputs": "w-full bg-transparent border-transparent hover:border-zinc-800 focus:border-zinc-700 rounded px-2 py-1 transition-colors text-sm"
   },
-  "motion": {
-    "hover": "transition-colors duration-200 ease-in-out",
-    "modal_enter": "animate-in fade-in zoom-in-95 duration-200",
-    "dropdown_enter": "animate-in slide-in-from-top-2 fade-in duration-150"
+  "animations": {
+    "hover": "transition-colors duration-150 ease-out",
+    "panel": "transition-transform duration-300 ease-[0.16,1,0.3,1]"
   },
-  "icons_and_assets": {
-    "icon_library": "@phosphor-icons/react",
-    "icon_style": "weight='regular' or 'duotone' for active states. Size: 18px-24px depending on context.",
-    "images": [
-      {
-        "category": "user_avatar_1",
-        "url": "https://images.unsplash.com/photo-1576558656222-ba66febe3dec?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
-        "description": "Avatar for active user or project manager"
-      },
-      {
-        "category": "user_avatar_2",
-        "url": "https://images.unsplash.com/photo-1769636929388-99eff95d3bf1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
-        "description": "Avatar for team member"
-      },
-      {
-        "category": "user_avatar_3",
-        "url": "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NjAyOTM4Nnww&ixlib=rb-4.1.0&q=85",
-        "description": "Avatar for another team member"
-      },
-      {
-        "category": "empty_state_background",
-        "url": "https://images.unsplash.com/photo-1521202850558-0110494d0457?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMGFyY2hpdGVjdHVyZSUyMHdoaXRlfGVufDB8fHx8MTc3NjEwNzUzOXww&ixlib=rb-4.1.0&q=85",
-        "description": "Architectural geometric white background for login screen or empty dashboards"
-      }
+  "images": {
+    "avatars": [
+      "https://images.unsplash.com/photo-1768247695726-022586dea3a1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGF2YXRhcnxlbnwwfHx8fDE3Nzc0MDQ4NDF8MA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1764971591006-b6eb67a8f0cb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGF2YXRhcnxlbnwwfHx8fDE3Nzc0MDQ4NDF8MA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1609371497456-3a55a205d5eb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGF2YXRhcnxlbnwwfHx8fDE3Nzc0MDQ4NDF8MA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1633625510483-c177f4308f33?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGF2YXRhcnxlbnwwfHx8fDE3Nzc0MDQ4NDF8MA&ixlib=rb-4.1.0&q=85"
     ]
   },
   "instructions_to_main_agent": [
-    "Run: yarn add @phosphor-icons/react",
-    "Add 'Cabinet Grotesk' and 'IBM Plex Sans' fonts via Google Fonts or standard CSS imports.",
-    "Implement the Workspace -> Projects -> Tasks hierarchy. Use the sidebar to display workspaces and nested projects.",
-    "Ensure 'CONTROL ROOM GRID' is used for dashboards (grid-cols-1 md:grid-cols-3 lg:grid-cols-4). Maximize density.",
-    "Use strict 1px borders (border-slate-200) instead of shadows for separating sections, except for popovers and modals.",
-    "For task views, implement List (table-like dense rows), Board (Kanban style, gray columns, white cards), and Calendar (grid layout).",
-    "Time tracking widget should be small, persistent or easily accessible from the header, with a clear play/stop state.",
-    "Avoid using generic purple or teal for primary actions; strictly adhere to blue-700 and amber-400 accents.",
-    "Apply data-testid attributes to ALL interactive elements."
+    "IMPORTANT: Build a desktop-only (1440px+) task management system. DO NOT use mobile responsive classes (like md:flex, flex-col on mobile). Assume a fixed desktop layout.",
+    "The UI should feel exceptionally fast and dense. Use 1px borders heavily for structure, completely avoiding drop-shadows except for the slide-in panel or popovers.",
+    "Implement the 3-pane layout: 1) Fixed Sidebar (w-64) 2) Main Content (Flex-1) 3) Right sliding panel for details.",
+    "The Right Slide-in Panel is crucial. It MUST NOT be a modal that blocks the background. It should slide over the right side of the main content. User can click outside to close.",
+    "Integrate Shadcn components but style them to be tighter, squarer, and darker. E.g., Card rounded-xl -> rounded-lg, reduce paddings.",
+    "Kanban board needs horizontal scrolling. Columns should be fixed width (e.g., 320px). Task cards inside should look minimal with ID (e.g. TASK-123), title, small status icon, and an avatar.",
+    "List view (for QA/All Bugs) should look like a data table or dense list, with hover states making the entire row slightly lighter.",
+    "In the Sidebar, group navigation into 'Your Workspace' (My Tasks, Inbox) and 'Projects' (Frontend, Backend, Design).",
+    "Use Lucide-React icons extensively. Examples: Hexagon (Workspace), CircleDashed (Todo), CheckCircle2 (Done), AlertCircle (Bug/High Priority), Plus (New Issue).",
+    "Add 'data-testid' to all interactive elements for robust testing."
   ]
 }
