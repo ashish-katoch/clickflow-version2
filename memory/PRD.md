@@ -1,58 +1,38 @@
-# ClickFlow - Project Management Tool (ClickUp Clone)
+# ClickFlow v3 - Linear-style Task Manager + QA Bug Tracker
 
-## Original Problem Statement
-Build a ClickUp-like project management tool with all paid features including: unlimited users & tasks, multiple views (List, Board, Calendar, Gantt, Timeline), advanced dashboards, time tracking, goals & reporting, comments, file attachments, automation rules, and role-based permissions.
+## Problem Statement
+Desktop web app for multi-project Task Manager with integrated QA Bug Tracking. Linear-style dark theme, minimal, fast. 3-pane layout: Sidebar | Content | Right Detail Panel.
 
 ## Architecture
-- **Backend**: FastAPI + MongoDB (motor async driver) - MODULAR structure
-  - `database.py` - MongoDB connection, collection references, indexes
-  - `models.py` - All Pydantic schemas + documented MongoDB collection schemas
-  - `auth_helpers.py` - JWT tokens, password hashing, user extraction
-  - `routes/` - Domain-specific routers (auth, projects, tasks, comments, attachments, automations, goals, time_entries, dashboard, members)
-- **Frontend**: React + TailwindCSS + Shadcn UI + Phosphor Icons
-- **Auth**: JWT with httpOnly cookies, bcrypt password hashing
-- **Design**: Light Swiss theme, Cabinet Grotesk + IBM Plex Sans fonts
+- **Backend**: FastAPI + MongoDB (modular: database.py, models.py, auth_helpers.py, routes/)
+- **Frontend**: React + TailwindCSS + Shadcn UI + Lucide Icons
+- **Auth**: JWT httpOnly cookies, bcrypt, admin seeding
+- **Design**: Dark zinc-950 theme, Manrope + Inter fonts, indigo accents
 
-## MongoDB Collections (10 total)
-users, login_attempts, projects, tasks, time_entries, goals, comments, attachments, automations, password_reset_tokens
+## Collections
+users, login_attempts, projects, tasks, bugs, comments, notifications, counters
 
-## What's Been Implemented
-### Phase 1 (Apr 13, 2026)
-- [x] JWT Auth (register, login, logout, refresh, admin seeding, brute force)
-- [x] Projects CRUD with color coding
-- [x] Tasks CRUD (subtasks, priorities, tags, due dates, assignees)
-- [x] List View, Board/Kanban View, Calendar View
-- [x] Task Detail Modal, Time Tracking, Dashboard, Goals, Members
+## Implemented (v3.0 - Apr 28, 2026)
+- [x] Auth (login/register/logout/refresh)
+- [x] Workspace Dashboard (project grid with task/bug counts)
+- [x] Project creation with auto-key (e.g. FE, BE)
+- [x] Sprint Board (Kanban: Backlog/In Progress/Completed) with drag-drop
+- [x] Auto-generated task keys (FE-1, FE-2, etc.)
+- [x] QA Bug List with filters (status, priority)
+- [x] Bug lifecycle: Open → In Progress → Ready for QA → Verified → Closed
+- [x] Right slide-in Detail Panel (inline title edit, status, priority, assignee, description, comments)
+- [x] Cross-project My Tasks view
+- [x] Cross-project All Bugs view
+- [x] Comments system (task + bug support)
+- [x] Notifications (task assigned, status changed, comment added)
+- [x] Sidebar: Dashboard, My Tasks, All Bugs, Project-aware sub-nav (Sprint Board, QA Bugs)
 
-### Phase 2 (Apr 28, 2026)
-- [x] Backend restructured into modular files
-- [x] Gantt Chart View (horizontal bars with start_date/due_date)
-- [x] Timeline View (date-grouped with overdue markers)
-- [x] Comments & Activity Log (auto-logs status/priority changes)
-- [x] File Attachments (base64 storage in MongoDB)
-- [x] Automation Rules (WHEN→THEN engine, quick templates, toggle on/off)
-- [x] start_date field added to tasks
+## Testing: 100% backend (30/30), 95% frontend, 100% integration
 
-## Testing Results
-- Backend: 100% (35/35 API tests passed)
-- Frontend: 95% (all major features working)
-
-## Prioritized Backlog
-### P1 (High)
-- [ ] Connect object storage for file attachments (replace base64)
-- [ ] Task dependencies (blocked by / blocking)
-- [ ] Advanced search across all tasks
-- [ ] Real-time notifications
-
-### P2 (Medium)
-- [ ] Recurring tasks
-- [ ] Email notifications
-- [ ] Task templates
-- [ ] Custom fields on tasks
-- [ ] Dark mode
-
-### P3 (Low)
-- [ ] Workspace switching (multi-tenant)
-- [ ] Import/export data
-- [ ] Mobile-optimized views
-- [ ] Advanced reporting charts
+## Backlog
+- [ ] Project overview (task/bug count, progress bar)
+- [ ] Global search functionality
+- [ ] @mentions in comments
+- [ ] Team member invitation
+- [ ] File attachments on bugs
+- [ ] Keyboard shortcuts
