@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../components/ui/separator';
 import { Checkbox } from '../components/ui/checkbox';
 import { startTimer, stopTimer, getActiveTimer, getTimeEntries } from '../lib/api';
+import CommentsSection from './CommentsSection';
+import AttachmentsSection from './AttachmentsSection';
 import { X, Trash, Play, Stop, Clock, Flag, CalendarBlank, Tag, ListPlus, Timer } from '@phosphor-icons/react';
 
 const PRIORITY_COLORS = {
@@ -249,6 +251,16 @@ export default function TaskDetailModal({ task, subtasks = [], onClose, onUpdate
               </div>
             )}
           </div>
+
+          <Separator className="bg-slate-200" />
+
+          {/* Attachments */}
+          <AttachmentsSection taskId={task.id} />
+
+          <Separator className="bg-slate-200" />
+
+          {/* Comments & Activity */}
+          <CommentsSection taskId={task.id} />
 
           <Separator className="bg-slate-200" />
 

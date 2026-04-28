@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
 import GoalsPage from './pages/GoalsPage';
 import MembersPage from './pages/MembersPage';
+import AutomationsPage from './pages/AutomationsPage';
 import AppSidebar from './components/AppSidebar';
 import TimeTracker from './components/TimeTracker';
 import { MagnifyingGlass, Bell } from '@phosphor-icons/react';
@@ -74,6 +75,7 @@ function App() {
             <Route path="/project/:projectId" element={<ProjectPage />} />
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/members" element={<MembersPage />} />
+            <Route path="/automations" element={<AutomationsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -31,6 +31,23 @@ export const createGoal = (data) => api.post('/goals', data).then(r => r.data);
 export const updateGoal = (id, data) => api.put(`/goals/${id}`, data).then(r => r.data);
 export const deleteGoal = (id) => api.delete(`/goals/${id}`).then(r => r.data);
 
+// Comments
+export const getComments = (taskId) => api.get(`/comments?task_id=${taskId}`).then(r => r.data);
+export const createComment = (data) => api.post('/comments', data).then(r => r.data);
+export const deleteComment = (id) => api.delete(`/comments/${id}`).then(r => r.data);
+
+// Attachments
+export const getAttachments = (taskId) => api.get(`/attachments?task_id=${taskId}`).then(r => r.data);
+export const createAttachment = (data) => api.post('/attachments', data).then(r => r.data);
+export const deleteAttachment = (id) => api.delete(`/attachments/${id}`).then(r => r.data);
+
+// Automations
+export const getAutomations = (params) => api.get('/automations', { params }).then(r => r.data);
+export const createAutomation = (data) => api.post('/automations', data).then(r => r.data);
+export const updateAutomation = (id, data) => api.put(`/automations/${id}`, data).then(r => r.data);
+export const toggleAutomation = (id) => api.post(`/automations/${id}/toggle`).then(r => r.data);
+export const deleteAutomation = (id) => api.delete(`/automations/${id}`).then(r => r.data);
+
 // Dashboard
 export const getDashboardStats = () => api.get('/dashboard/stats').then(r => r.data);
 

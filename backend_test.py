@@ -274,6 +274,112 @@ class ClickFlowAPITester:
             else:
                 print("   ❌ Admin user not found in members list")
 
+    def test_comments(self):
+        """Test comments functionality"""
+        print("\n=== COMMENTS TESTS ===")
+        
+        if not self.task_id:
+            print("❌ Skipping comments tests - no task ID available")
+            return
+        
+        # Get comments for task
+        self.run_test("Get Comments", "GET", "comments", 200, params={"task_id": self.task_id})
+        
+        # Create comment
+        success, response = self.run_test(
+            "Create Comment",
+            "POST",
+            "comments",
+            200,
+            data={
+                "task_id": self.task_id,
+                "content": "This is a test comment"
+            }
+        )
+        comment_id = response.get('id') if success else None
+        
+        # Delete comment if created
+        if comment_id:
+            self.run_test("Delete Comment", "DELETE", f"comments/{comment_id}", 200)
+
+    def test_attachments(self):
+        """Test attachments functionality"""
+        print("\n=== ATTACHMENTS TESTS ===")
+        
+        if not self.task_id:
+            print("❌ Skipping attachments tests - no task ID available")
+            return
+        
+        # Get attachments for task
+        self.run_test("Get Attachments", "GET", "attachments", 200, params={"task_id": self.task_id})
+        
+        # Create attachment (base64 data URI)
+        success, response = self.run_test(
+            "Create Attachment",
+            "POST",
+            "attachments",
+            200,
+            data={
+                "task_id": self.task_id,
+                "file_name": "test.txt",
+                "file_url": "data:text/plain;base64,VGVzdCBmaWxlIGNvbnRlbnQ=",
+                "file_size": 17,
+                "file_type": "text/plain"
+            }
+        )
+        attachment_id = response.get('id') if success else None
+        
+        # Delete attachment if created
+        if attachment_id:
+            self.run_test("Delete Attachment", "DELETE", f"attachments/{attachment_id}", 200)
+
+    def test_automations(self):
+        """Test automations functionality"""
+        print("\n=== AUTOMATIONS TESTS ===")
+        
+        # Get automations
+        self.run_test("Get Automations", "GET", "automations", 200)
+        
+        # Create automation
+        success, response = self.run_test(
+            "Create Automation",
+            "POST",
+            "automations",
+            200,
+            data={
+                "project_id": self.project_id,
+                "name": "Auto-review on complete",
+                "trigger_type": "status_change",
+                "trigger_value": "done",
+                "action_type": "change_status",
+                "action_value": "in_review",
+                "active": True
+            }
+        )
+        automation_id = response.get('id') if success else None
+        
+        if automation_id:
+            # Toggle automation
+            self.run_test("Toggle Automation", "POST", f"automations/{automation_id}/toggle", 200)
+            
+            # Delete automation
+            self.run_test("Delete Automation", "DELETE", f"automations/{automation_id}", 200)
+
+    def test_health(self):
+        """Test health endpoint"""
+        print("\n=== HEALTH CHECK ===")
+        
+        success, response = self.run_test("Health Check", "GET", "health", 200)
+        if success:
+            if response.get('version') == '2.0':
+                print("   ✅ Version 2.0 confirmed")
+            else:
+                print(f"   ❌ Expected version 2.0, got {response.get('version')}")
+            if response.get('status') == 'ok':
+                print("   ✅ Status OK")
+            else:
+                print(f"   ❌ Expected status 'ok', got {response.get('status')}")
+
     def cleanup(self):
         """Clean up test data"""
         print("\n=== CLEANUP ===")
@@ -296,6 +402,7 @@ class ClickFlowAPITester:
         print(f"Base URL: {self.base_url}")
         
         try:
+            self.test_health()
             self.test_auth_flow()
             self.test_projects()
             self.test_tasks()
@@ -303,6 +410,9 @@ class ClickFlowAPITester:
             self.test_goals()
             self.test_dashboard()
             self.test_members()
+            self.test_comments()
+            self.test_attachments()
+            self.test_automations()
             self.cleanup()
         except Exception as e:
             print(f"\n❌ Test suite failed with error: {str(e)}")

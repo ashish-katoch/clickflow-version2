@@ -5,6 +5,8 @@ import { getProjects } from '../lib/api';
 import TaskListView from '../components/TaskListView';
 import TaskBoardView from '../components/TaskBoardView';
 import TaskCalendarView from '../components/TaskCalendarView';
+import TaskGanttView from '../components/TaskGanttView';
+import TaskTimelineView from '../components/TaskTimelineView';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -12,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Label } from '../components/ui/label';
-import { Plus, ListBullets, Kanban, CalendarBlank, Funnel } from '@phosphor-icons/react';
+import { Plus, ListBullets, Kanban, CalendarBlank, Funnel, ChartBar, FlowArrow } from '@phosphor-icons/react';
 
 export default function ProjectPage() {
   const { projectId } = useParams();
@@ -24,7 +26,7 @@ export default function ProjectPage() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
-  const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo', priority: 'none', due_date: '', tags: [] });
+  const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo', priority: 'none', start_date: '', due_date: '', tags: [] });
   const [tagInput, setTagInput] = useState('');
 
   const fetchData = useCallback(async () => {
@@ -46,7 +48,7 @@ export default function ProjectPage() {
     if (!newTask.title.trim()) return;
     try {
       await createTask(projectId, newTask);
-      setNewTask({ title: '', description: '', status: 'todo', priority: 'none', due_date: '', tags: [] });
+      setNewTask({ title: '', description: '', status: 'todo', priority: 'none', start_date: '', due_date: '', tags: [] });
       setShowCreate(false);
       fetchData();
     } catch (e) { console.error(e); }
@@ -144,9 +146,15 @@ export default function ProjectPage() {
                     </Select>
                   </div>
                 </div>
-                <div>
-                  <Label className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Due Date</Label>
-                  <Input type="date" data-testid="task-duedate-input" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} className="mt-1 border-slate-200" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Start Date</Label>
+                    <Input type="date" data-testid="task-startdate-input" value={newTask.start_date} onChange={e => setNewTask({ ...newTask, start_date: e.target.value })} className="mt-1 border-slate-200" />
+                  </div>
+                  <div>
+                    <Label className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Due Date</Label>
+                    <Input type="date" data-testid="task-duedate-input" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} className="mt-1 border-slate-200" />
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Tags</Label>
@@ -184,6 +192,12 @@ export default function ProjectPage() {
               <TabsTrigger data-testid="view-calendar" value="calendar" className="text-xs gap-1 px-3 h-7 data-[state=active]:bg-white">
                 <CalendarBlank size={14} /> Calendar
               </TabsTrigger>
+              <TabsTrigger data-testid="view-gantt" value="gantt" className="text-xs gap-1 px-3 h-7 data-[state=active]:bg-white">
+                <ChartBar size={14} /> Gantt
+              </TabsTrigger>
+              <TabsTrigger data-testid="view-timeline" value="timeline" className="text-xs gap-1 px-3 h-7 data-[state=active]:bg-white">
+                <FlowArrow size={14} /> Timeline
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -218,6 +232,8 @@ export default function ProjectPage() {
         {view === 'list' && <TaskListView tasks={filteredTasks} subtasks={subtasks} onUpdate={handleUpdateTask} onSelect={setSelectedTask} onDelete={handleDeleteTask} />}
         {view === 'board' && <TaskBoardView tasks={filteredTasks} onUpdate={handleUpdateTask} onSelect={setSelectedTask} />}
         {view === 'calendar' && <TaskCalendarView tasks={filteredTasks} onSelect={setSelectedTask} />}
+        {view === 'gantt' && <TaskGanttView tasks={filteredTasks} onSelect={setSelectedTask} />}
+        {view === 'timeline' && <TaskTimelineView tasks={filteredTasks} onSelect={setSelectedTask} />}
       </div>
 
       {/* Task Detail Modal */}

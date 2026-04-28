@@ -9,7 +9,7 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { Separator } from '../components/ui/separator';
 import {
   SquaresFour, House, FolderOpen, Target, Users, Gear,
-  Plus, SignOut, CaretDown, CaretRight, Trash, Circle
+  Plus, SignOut, CaretDown, CaretRight, Trash, Circle, Lightning
 } from '@phosphor-icons/react';
 
 const PROJECT_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
@@ -98,6 +98,15 @@ export default function AppSidebar({ onProjectChange }) {
             }
           >
             <Users size={18} weight="duotone" /> Members
+          </NavLink>
+          <NavLink
+            to="/automations"
+            data-testid="nav-automations"
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
+            }
+          >
+            <Lightning size={18} weight="duotone" /> Automations
           </NavLink>
         </nav>
 
