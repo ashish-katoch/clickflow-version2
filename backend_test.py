@@ -3,7 +3,7 @@ import sys
 import json
 from datetime import datetime, timezone
 
-class ClickFlowAPITester:
+class ClickFlowV3APITester:
     def __init__(self, base_url="https://workflow-hub-425.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.session = requests.Session()
@@ -12,7 +12,8 @@ class ClickFlowAPITester:
         self.user_id = None
         self.project_id = None
         self.task_id = None
-        self.goal_id = None
+        self.bug_id = None
+        self.comment_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
         """Run a single API test"""
@@ -53,6 +54,21 @@ class ClickFlowAPITester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
+    def test_health(self):
+        """Test health endpoint - should return v3.0"""
+        print("\n=== HEALTH CHECK ===")
+        
+        success, response = self.run_test("Health Check", "GET", "health", 200)
+        if success:
+            if response.get('version') == '3.0':
+                print("   ✅ Version 3.0 confirmed")
+            else:
+                print(f"   ❌ Expected version 3.0, got {response.get('version')}")
+            if response.get('status') == 'ok':
+                print("   ✅ Status OK")
+            else:
+                print(f"   ❌ Expected status 'ok', got {response.get('status')}")
+
     def test_auth_flow(self):
         """Test complete authentication flow"""
         print("\n=== AUTHENTICATION TESTS ===")
@@ -81,18 +97,6 @@ class ClickFlowAPITester:
             200,
             data={"email": test_email, "password": "testpass123", "name": "Test User"}
         )
-        
-        # Test logout
-        self.run_test("Logout", "POST", "auth/logout", 200)
-        
-        # Login back as admin for other tests
-        success, response = self.run_test(
-            "Re-login as Admin",
-            "POST",
-            "auth/login",
-            200,
-            data={"email": "admin@clickflow.com", "password": "admin123"}
-        )
 
     def test_projects(self):
         """Test project CRUD operations"""
@@ -107,7 +111,7 @@ class ClickFlowAPITester:
             "POST",
             "projects",
             200,
-            data={"name": "Test Project", "description": "Test project description", "color": "#ff6b6b"}
+            data={"name": "Test Project", "key": "TST", "description": "Test project description", "color": "#6366f1"}
         )
         if success and response.get('id'):
             self.project_id = response['id']
@@ -120,7 +124,7 @@ class ClickFlowAPITester:
                 "PUT",
                 f"projects/{self.project_id}",
                 200,
-                data={"name": "Updated Test Project", "description": "Updated description", "color": "#4ecdc4"}
+                data={"name": "Updated Test Project", "description": "Updated description"}
             )
 
     def test_tasks(self):
@@ -131,7 +135,7 @@ class ClickFlowAPITester:
             print("❌ Skipping task tests - no project ID available")
             return
         
-        # Get tasks
+        # Get tasks for project
         self.run_test("Get Tasks", "GET", "tasks", 200, params={"project_id": self.project_id})
         
         # Create task
@@ -143,16 +147,17 @@ class ClickFlowAPITester:
             data={
                 "title": "Test Task",
                 "description": "Test task description",
-                "status": "todo",
+                "status": "backlog",
                 "priority": "high",
-                "due_date": "2024-12-31T23:59:59Z",
-                "tags": ["test", "api"]
+                "assignee_id": self.user_id,
+                "due_date": "2024-12-31"
             },
             params={"project_id": self.project_id}
         )
         if success and response.get('id'):
             self.task_id = response['id']
             print(f"   Created task ID: {self.task_id}")
+            print(f"   Task key: {response.get('key')}")
         
         # Update task
         if self.task_id:
@@ -164,101 +169,112 @@ class ClickFlowAPITester:
                 data={"status": "in_progress", "priority": "medium"}
             )
         
-        # Create subtask
-        if self.task_id:
-            self.run_test(
-                "Create Subtask",
-                "POST",
-                "tasks",
-                200,
-                data={
-                    "title": "Test Subtask",
-                    "description": "Test subtask description",
-                    "parent_task_id": self.task_id
-                },
-                params={"project_id": self.project_id}
-            )
+        # Test My Tasks endpoint
+        self.run_test("Get My Tasks", "GET", "tasks/my", 200)
 
-    def test_time_tracking(self):
-        """Test time tracking functionality"""
-        print("\n=== TIME TRACKING TESTS ===")
+    def test_bugs(self):
+        """Test bug CRUD operations"""
+        print("\n=== BUG TESTS ===")
         
-        if not self.task_id:
-            print("❌ Skipping time tracking tests - no task ID available")
+        if not self.project_id:
+            print("❌ Skipping bug tests - no project ID available")
             return
         
-        # Get time entries
-        self.run_test("Get Time Entries", "GET", "time-entries", 200)
+        # Get bugs for project
+        self.run_test("Get Bugs", "GET", "bugs", 200, params={"project_id": self.project_id})
         
-        # Start timer
+        # Create bug
         success, response = self.run_test(
-            "Start Timer",
+            "Create Bug",
             "POST",
-            "time-entries/start",
-            200,
-            data={"task_id": self.task_id, "description": "Working on test task"}
-        )
-        
-        # Get active timer
-        self.run_test("Get Active Timer", "GET", "time-entries/active", 200)
-        
-        # Stop timer
-        self.run_test("Stop Timer", "POST", "time-entries/stop", 200)
-
-    def test_goals(self):
-        """Test goals CRUD operations"""
-        print("\n=== GOALS TESTS ===")
-        
-        # Get goals
-        self.run_test("Get Goals", "GET", "goals", 200)
-        
-        # Create goal
-        success, response = self.run_test(
-            "Create Goal",
-            "POST",
-            "goals",
+            "bugs",
             200,
             data={
-                "title": "Test Goal",
-                "description": "Test goal description",
-                "target_value": 100,
-                "current_value": 25,
-                "unit": "percent",
-                "due_date": "2024-12-31T23:59:59Z"
+                "title": "Test Bug",
+                "description": "Test bug description",
+                "status": "open",
+                "priority": "high",
+                "assignee_id": self.user_id
+            },
+            params={"project_id": self.project_id}
+        )
+        if success and response.get('id'):
+            self.bug_id = response['id']
+            print(f"   Created bug ID: {self.bug_id}")
+            print(f"   Bug key: {response.get('key')}")
+        
+        # Update bug status through lifecycle
+        if self.bug_id:
+            statuses = ["in_progress", "ready_for_qa", "verified", "closed"]
+            for status in statuses:
+                self.run_test(
+                    f"Update Bug Status to {status}",
+                    "PUT",
+                    f"bugs/{self.bug_id}",
+                    200,
+                    data={"status": status}
+                )
+        
+        # Test All Bugs endpoint
+        self.run_test("Get All Bugs", "GET", "bugs/all", 200)
+
+    def test_comments(self):
+        """Test comments functionality with entity_id and entity_type"""
+        print("\n=== COMMENTS TESTS ===")
+        
+        if not self.task_id:
+            print("❌ Skipping comments tests - no task ID available")
+            return
+        
+        # Get comments for task
+        self.run_test("Get Task Comments", "GET", "comments", 200, params={"entity_id": self.task_id, "entity_type": "task"})
+        
+        # Create comment on task
+        success, response = self.run_test(
+            "Create Task Comment",
+            "POST",
+            "comments",
+            200,
+            data={
+                "entity_id": self.task_id,
+                "entity_type": "task",
+                "content": "This is a test comment on a task"
             }
         )
         if success and response.get('id'):
-            self.goal_id = response['id']
-            print(f"   Created goal ID: {self.goal_id}")
+            self.comment_id = response['id']
+            print(f"   Created comment ID: {self.comment_id}")
         
-        # Update goal
-        if self.goal_id:
+        # Test comments on bug if available
+        if self.bug_id:
+            self.run_test("Get Bug Comments", "GET", "comments", 200, params={"entity_id": self.bug_id, "entity_type": "bug"})
+            
             self.run_test(
-                "Update Goal",
-                "PUT",
-                f"goals/{self.goal_id}",
+                "Create Bug Comment",
+                "POST",
+                "comments",
                 200,
                 data={
-                    "title": "Updated Test Goal",
-                    "description": "Updated description",
-                    "target_value": 100,
-                    "current_value": 50,
-                    "unit": "percent"
+                    "entity_id": self.bug_id,
+                    "entity_type": "bug",
+                    "content": "This is a test comment on a bug"
                 }
             )
 
-    def test_dashboard(self):
-        """Test dashboard stats"""
-        print("\n=== DASHBOARD TESTS ===")
+    def test_notifications(self):
+        """Test notifications functionality"""
+        print("\n=== NOTIFICATIONS TESTS ===")
         
-        success, response = self.run_test("Get Dashboard Stats", "GET", "dashboard/stats", 200)
+        # Get notifications
+        self.run_test("Get Notifications", "GET", "notifications", 200)
+        
+        # Get unread count
+        success, response = self.run_test("Get Unread Count", "GET", "notifications/unread-count", 200)
         if success:
-            required_fields = ['total_tasks', 'total_projects', 'total_goals', 'total_time_today']
-            for field in required_fields:
-                if field in response:
-                    print(f"   ✅ {field}: {response[field]}")
-                else:
-                    print(f"   ❌ Missing field: {field}")
+            print(f"   Unread notifications: {response.get('count', 0)}")
+        
+        # Mark all as read
+        self.run_test("Mark All Read", "POST", "notifications/mark-read", 200)
 
     def test_members(self):
         """Test members functionality"""
@@ -274,121 +290,19 @@ class ClickFlowAPITester:
             else:
                 print("   ❌ Admin user not found in members list")
 
-    def test_comments(self):
-        """Test comments functionality"""
-        print("\n=== COMMENTS TESTS ===")
-        
-        if not self.task_id:
-            print("❌ Skipping comments tests - no task ID available")
-            return
-        
-        # Get comments for task
-        self.run_test("Get Comments", "GET", "comments", 200, params={"task_id": self.task_id})
-        
-        # Create comment
-        success, response = self.run_test(
-            "Create Comment",
-            "POST",
-            "comments",
-            200,
-            data={
-                "task_id": self.task_id,
-                "content": "This is a test comment"
-            }
-        )
-        comment_id = response.get('id') if success else None
-        
-        # Delete comment if created
-        if comment_id:
-            self.run_test("Delete Comment", "DELETE", f"comments/{comment_id}", 200)
-
-    def test_attachments(self):
-        """Test attachments functionality"""
-        print("\n=== ATTACHMENTS TESTS ===")
-        
-        if not self.task_id:
-            print("❌ Skipping attachments tests - no task ID available")
-            return
-        
-        # Get attachments for task
-        self.run_test("Get Attachments", "GET", "attachments", 200, params={"task_id": self.task_id})
-        
-        # Create attachment (base64 data URI)
-        success, response = self.run_test(
-            "Create Attachment",
-            "POST",
-            "attachments",
-            200,
-            data={
-                "task_id": self.task_id,
-                "file_name": "test.txt",
-                "file_url": "data:text/plain;base64,VGVzdCBmaWxlIGNvbnRlbnQ=",
-                "file_size": 17,
-                "file_type": "text/plain"
-            }
-        )
-        attachment_id = response.get('id') if success else None
-        
-        # Delete attachment if created
-        if attachment_id:
-            self.run_test("Delete Attachment", "DELETE", f"attachments/{attachment_id}", 200)
-
-    def test_automations(self):
-        """Test automations functionality"""
-        print("\n=== AUTOMATIONS TESTS ===")
-        
-        # Get automations
-        self.run_test("Get Automations", "GET", "automations", 200)
-        
-        # Create automation
-        success, response = self.run_test(
-            "Create Automation",
-            "POST",
-            "automations",
-            200,
-            data={
-                "project_id": self.project_id,
-                "name": "Auto-review on complete",
-                "trigger_type": "status_change",
-                "trigger_value": "done",
-                "action_type": "change_status",
-                "action_value": "in_review",
-                "active": True
-            }
-        )
-        automation_id = response.get('id') if success else None
-        
-        if automation_id:
-            # Toggle automation
-            self.run_test("Toggle Automation", "POST", f"automations/{automation_id}/toggle", 200)
-            
-            # Delete automation
-            self.run_test("Delete Automation", "DELETE", f"automations/{automation_id}", 200)
-
-    def test_health(self):
-        """Test health endpoint"""
-        print("\n=== HEALTH CHECK ===")
-        
-        success, response = self.run_test("Health Check", "GET", "health", 200)
-        if success:
-            if response.get('version') == '2.0':
-                print("   ✅ Version 2.0 confirmed")
-            else:
-                print(f"   ❌ Expected version 2.0, got {response.get('version')}")
-            if response.get('status') == 'ok':
-                print("   ✅ Status OK")
-            else:
-                print(f"   ❌ Expected status 'ok', got {response.get('status')}")
-
     def cleanup(self):
         """Clean up test data"""
         print("\n=== CLEANUP ===")
         
-        # Delete test goal
-        if self.goal_id:
-            self.run_test("Delete Goal", "DELETE", f"goals/{self.goal_id}", 200)
+        # Delete test comment
+        if self.comment_id:
+            self.run_test("Delete Comment", "DELETE", f"comments/{self.comment_id}", 200)
         
-        # Delete test task (this will also delete subtasks)
+        # Delete test bug
+        if self.bug_id:
+            self.run_test("Delete Bug", "DELETE", f"bugs/{self.bug_id}", 200)
+        
+        # Delete test task
         if self.task_id:
             self.run_test("Delete Task", "DELETE", f"tasks/{self.task_id}", 200)
         
@@ -398,7 +312,7 @@ class ClickFlowAPITester:
 
     def run_all_tests(self):
         """Run all API tests"""
-        print("🚀 Starting ClickFlow API Tests")
+        print("🚀 Starting ClickFlow v3.0 API Tests")
         print(f"Base URL: {self.base_url}")
         
         try:
@@ -406,13 +320,10 @@ class ClickFlowAPITester:
             self.test_auth_flow()
             self.test_projects()
             self.test_tasks()
-            self.test_time_tracking()
-            self.test_goals()
-            self.test_dashboard()
-            self.test_members()
+            self.test_bugs()
             self.test_comments()
-            self.test_attachments()
-            self.test_automations()
+            self.test_notifications()
+            self.test_members()
             self.cleanup()
         except Exception as e:
             print(f"\n❌ Test suite failed with error: {str(e)}")
@@ -425,7 +336,7 @@ class ClickFlowAPITester:
         return self.tests_passed == self.tests_run
 
 def main():
-    tester = ClickFlowAPITester()
+    tester = ClickFlowV3APITester()
     success = tester.run_all_tests()
     return 0 if success else 1
 

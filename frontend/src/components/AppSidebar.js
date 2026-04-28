@@ -1,228 +1,126 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getProjects, createProject, deleteProject } from '../lib/api';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { getProjects, createProject } from '../lib/api';
+import { Hexagon, LayoutGrid, CheckSquare, Bug, Plus, LogOut, ChevronDown, FolderKanban } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { Separator } from '../components/ui/separator';
-import {
-  SquaresFour, House, FolderOpen, Target, Users, Gear,
-  Plus, SignOut, CaretDown, CaretRight, Trash, Circle, Lightning
-} from '@phosphor-icons/react';
 
-const PROJECT_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+const PROJECT_COLORS = ['#6366f1','#f43f5e','#f59e0b','#10b981','#06b6d4','#8b5cf6','#ec4899','#f97316'];
+const navLink = (isActive) => `group flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors ${isActive ? 'bg-zinc-800 text-zinc-50' : 'text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800/50'}`;
 
-export default function AppSidebar({ onProjectChange }) {
+export default function AppSidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const [projects, setProjects] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newColor, setNewColor] = useState('#3b82f6');
-  const [projectsExpanded, setProjectsExpanded] = useState(true);
+  const [newKey, setNewKey] = useState('');
+  const [newColor, setNewColor] = useState('#6366f1');
 
   const fetchProjects = useCallback(async () => {
-    try {
-      const data = await getProjects();
-      setProjects(data);
-    } catch (e) { console.error(e); }
+    try { setProjects(await getProjects()); } catch {}
   }, []);
-
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
-    try {
-      const project = await createProject({ name: newName, color: newColor });
-      setNewName('');
-      setShowCreate(false);
-      fetchProjects();
-      navigate(`/project/${project.id}`);
-    } catch (e) { console.error(e); }
-  };
-
-  const handleDelete = async (e, id) => {
-    e.stopPropagation();
-    e.preventDefault();
-    await deleteProject(id);
+    const p = await createProject({ name: newName, key: newKey || newName.slice(0,3), color: newColor });
+    setShowCreate(false); setNewName(''); setNewKey('');
     fetchProjects();
-    navigate('/');
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    navigate(`/project/${p.id}/board`);
   };
 
   return (
-    <div className="w-64 h-screen bg-slate-50 border-r border-slate-200 flex flex-col" data-testid="app-sidebar">
+    <div className="w-60 flex-shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950 z-10" data-testid="app-sidebar">
       {/* Brand */}
-      <div className="px-4 py-4 flex items-center gap-2.5">
-        <div className="w-8 h-8 bg-blue-700 rounded-lg flex items-center justify-center flex-shrink-0">
-          <SquaresFour size={18} weight="duotone" className="text-white" />
-        </div>
-        <span className="text-lg font-bold tracking-tight" style={{ fontFamily: 'Cabinet Grotesk, sans-serif' }}>ClickFlow</span>
+      <div className="px-4 h-14 flex items-center gap-2 border-b border-zinc-800">
+        <Hexagon size={20} className="text-indigo-400" />
+        <span className="text-sm font-bold tracking-tight" style={{ fontFamily: 'Manrope' }}>ClickFlow</span>
       </div>
 
-      <Separator className="bg-slate-200" />
-
-      <ScrollArea className="flex-1 px-3 py-3">
-        {/* Nav Links */}
-        <nav className="space-y-0.5">
-          <NavLink
-            to="/"
-            end
-            data-testid="nav-dashboard"
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
-            }
-          >
-            <House size={18} weight="duotone" /> Dashboard
-          </NavLink>
-          <NavLink
-            to="/goals"
-            data-testid="nav-goals"
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
-            }
-          >
-            <Target size={18} weight="duotone" /> Goals
-          </NavLink>
-          <NavLink
-            to="/members"
-            data-testid="nav-members"
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
-            }
-          >
-            <Users size={18} weight="duotone" /> Members
-          </NavLink>
-          <NavLink
-            to="/automations"
-            data-testid="nav-automations"
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
-            }
-          >
-            <Lightning size={18} weight="duotone" /> Automations
-          </NavLink>
-        </nav>
-
-        <Separator className="bg-slate-200 my-3" />
-
-        {/* Projects Section */}
+      <div className="flex-1 overflow-y-auto px-2 py-3 space-y-5">
+        {/* Workspace nav */}
         <div>
-          <div
-            className="flex items-center justify-between px-3 py-1.5 cursor-pointer"
-            onClick={() => setProjectsExpanded(!projectsExpanded)}
-          >
-            <span className="text-xs uppercase tracking-wide font-semibold text-slate-400 flex items-center gap-1">
-              {projectsExpanded ? <CaretDown size={12} /> : <CaretRight size={12} />}
-              Projects
-            </span>
+          <div className="px-2 mb-1 text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">Workspace</div>
+          <nav className="space-y-0.5">
+            <NavLink to="/" end data-testid="nav-dashboard" className={({ isActive }) => navLink(isActive)}>
+              <LayoutGrid size={16} /> Dashboard
+            </NavLink>
+            <NavLink to="/my-tasks" data-testid="nav-my-tasks" className={({ isActive }) => navLink(isActive)}>
+              <CheckSquare size={16} /> My Tasks
+            </NavLink>
+            <NavLink to="/all-bugs" data-testid="nav-all-bugs" className={({ isActive }) => navLink(isActive)}>
+              <Bug size={16} /> All Bugs
+            </NavLink>
+          </nav>
+        </div>
+
+        {/* Projects */}
+        <div>
+          <div className="px-2 mb-1 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">Projects</span>
             <Dialog open={showCreate} onOpenChange={setShowCreate}>
               <DialogTrigger asChild>
-                <button
-                  data-testid="create-project-btn"
-                  className="w-5 h-5 rounded flex items-center justify-center hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Plus size={12} weight="bold" />
+                <button data-testid="create-project-btn" className="h-5 w-5 rounded flex items-center justify-center text-zinc-500 hover:text-zinc-50 hover:bg-zinc-800 transition-colors">
+                  <Plus size={12} />
                 </button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
-                <DialogHeader>
-                  <DialogTitle style={{ fontFamily: 'Cabinet Grotesk, sans-serif' }}>New Project</DialogTitle>
-                </DialogHeader>
+              <DialogContent className="sm:max-w-sm bg-zinc-900 border-zinc-800">
+                <DialogHeader><DialogTitle className="text-zinc-50" style={{ fontFamily: 'Manrope' }}>New Project</DialogTitle></DialogHeader>
                 <div className="space-y-3 mt-2">
-                  <div>
-                    <Input
-                      data-testid="project-name-input"
-                      value={newName}
-                      onChange={e => setNewName(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleCreate()}
-                      placeholder="Project name"
-                      className="border-slate-200"
-                    />
+                  <input data-testid="project-name-input" value={newName} onChange={e => { setNewName(e.target.value); if (!newKey) setNewKey(e.target.value.slice(0,3).toUpperCase()); }}
+                    placeholder="Project name" className="flex h-9 w-full rounded-md border border-zinc-800 bg-transparent px-3 text-sm text-zinc-50 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400" />
+                  <input data-testid="project-key-input" value={newKey} onChange={e => setNewKey(e.target.value.toUpperCase())}
+                    placeholder="Key (e.g. FE)" className="flex h-9 w-full rounded-md border border-zinc-800 bg-transparent px-3 text-sm text-zinc-50 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400" />
+                  <div className="flex gap-2">
+                    {PROJECT_COLORS.map(c => (
+                      <button key={c} onClick={() => setNewColor(c)} className={`w-6 h-6 rounded-full transition-all ${newColor === c ? 'ring-2 ring-offset-1 ring-offset-zinc-900 ring-zinc-400 scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: c }} />
+                    ))}
                   </div>
-                  <div>
-                    <span className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Color</span>
-                    <div className="flex gap-2 mt-1">
-                      {PROJECT_COLORS.map(c => (
-                        <button
-                          key={c}
-                          onClick={() => setNewColor(c)}
-                          className={`w-6 h-6 rounded-full transition-all ${newColor === c ? 'ring-2 ring-offset-1 ring-blue-700 scale-110' : 'hover:scale-110'}`}
-                          style={{ backgroundColor: c }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <Button data-testid="submit-project-btn" onClick={handleCreate} className="w-full bg-blue-700 hover:bg-blue-800 text-white">
-                    Create Project
-                  </Button>
+                  <button data-testid="submit-project-btn" onClick={handleCreate} className="h-9 w-full rounded-md bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">Create Project</button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
-
-          {projectsExpanded && (
-            <div className="space-y-0.5 mt-1">
-              {projects.length === 0 ? (
-                <p className="text-xs text-slate-400 px-3 py-2">No projects yet</p>
-              ) : (
-                projects.map(p => (
-                  <NavLink
-                    key={p.id}
-                    to={`/project/${p.id}`}
-                    data-testid={`project-link-${p.id}`}
-                    className={({ isActive }) =>
-                      `flex items-center justify-between px-3 py-1.5 rounded-md text-sm group transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`
-                    }
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Circle size={10} weight="fill" style={{ color: p.color }} className="flex-shrink-0" />
-                      <span className="truncate">{p.name}</span>
-                    </div>
-                    <button
-                      onClick={(e) => handleDelete(e, p.id)}
-                      className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded flex items-center justify-center hover:bg-red-100 text-slate-400 hover:text-red-500 transition-all"
-                      data-testid={`delete-project-${p.id}`}
-                    >
-                      <Trash size={12} />
-                    </button>
-                  </NavLink>
-                ))
-              )}
-            </div>
-          )}
+          <nav className="space-y-0.5">
+            {projects.map(p => (
+              <div key={p.id}>
+                <NavLink to={`/project/${p.id}/board`} data-testid={`project-link-${p.id}`}
+                  className={({ isActive }) => navLink(isActive || projectId === p.id)}>
+                  <div className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ backgroundColor: p.color }}>
+                    {p.key?.[0] || p.name[0]}
+                  </div>
+                  <span className="truncate">{p.name}</span>
+                </NavLink>
+                {projectId === p.id && (
+                  <div className="ml-8 mt-0.5 space-y-0.5">
+                    <NavLink to={`/project/${p.id}/board`} end className={({ isActive }) => `block text-xs py-1 px-2 rounded ${isActive ? 'text-zinc-50' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      <FolderKanban size={12} className="inline mr-1.5" />Sprint Board
+                    </NavLink>
+                    <NavLink to={`/project/${p.id}/bugs`} className={({ isActive }) => `block text-xs py-1 px-2 rounded ${isActive ? 'text-zinc-50' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      <Bug size={12} className="inline mr-1.5" />QA Bugs
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+            ))}
+            {projects.length === 0 && <p className="text-xs text-zinc-600 px-3 py-2">No projects yet</p>}
+          </nav>
         </div>
-      </ScrollArea>
+      </div>
 
-      <Separator className="bg-slate-200" />
-
-      {/* User Section */}
-      <div className="px-3 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-blue-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-semibold text-white">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-slate-900 truncate">{user?.name || 'User'}</div>
-              <div className="text-[10px] text-slate-400 truncate">{user?.email}</div>
-            </div>
+      {/* User */}
+      <div className="px-3 py-3 border-t border-zinc-800 flex items-center justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+            <span className="text-[10px] font-bold text-white">{user?.name?.[0]?.toUpperCase() || 'U'}</span>
           </div>
-          <button
-            onClick={handleLogout}
-            data-testid="logout-btn"
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
-          >
-            <SignOut size={16} />
-          </button>
+          <div className="min-w-0"><div className="text-xs font-medium truncate">{user?.name}</div></div>
         </div>
+        <button onClick={() => { logout(); }} data-testid="logout-btn" className="h-7 w-7 rounded flex items-center justify-center text-zinc-500 hover:text-zinc-50 hover:bg-zinc-800 transition-colors">
+          <LogOut size={14} />
+        </button>
       </div>
     </div>
   );

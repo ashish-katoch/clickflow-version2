@@ -1,8 +1,4 @@
-"""
-ClickFlow - Database Module
-MongoDB connection, collection references, and index management.
-Easy to import from any route file.
-"""
+"""MongoDB connection, collection refs, index management."""
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 
@@ -10,34 +6,30 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# ─── Collection References ───
-# Usage: from database import db
-# Then:  db.users, db.projects, db.tasks, etc.
-#
-# Collections:
-#   users              - User accounts & auth
-#   login_attempts     - Brute force protection
-#   projects           - Project containers
-#   tasks              - Task items (supports subtasks via parent_task_id)
-#   time_entries       - Time tracking records
-#   goals              - Goal tracking
-#   comments           - Task comments / activity log
-#   attachments        - File attachment metadata
-#   automations        - Automation rules
-
 async def create_indexes():
-    """Create MongoDB indexes on startup."""
     await db.users.create_index("email", unique=True)
     await db.login_attempts.create_index("identifier")
+    await db.projects.create_index("key", unique=True)
     await db.tasks.create_index("project_id")
+    await db.tasks.create_index("assignee_id")
     await db.tasks.create_index("status")
-    await db.tasks.create_index("parent_task_id")
-    await db.time_entries.create_index("user_id")
-    await db.time_entries.create_index("task_id")
-    await db.comments.create_index("task_id")
-    await db.comments.create_index("created_at")
-    await db.attachments.create_index("task_id")
-    await db.automations.create_index("project_id")
+    await db.bugs.create_index("project_id")
+    await db.bugs.create_index("assignee_id")
+    await db.bugs.create_index("status")
+    await db.comments.create_index([("entity_id", 1), ("entity_type", 1)])
+    await db.notifications.create_index("user_id")
+    await db.notifications.create_index("read")
+    await db.counters.create_index("project_id")
+
+async def get_next_key(project_id: str, prefix: str) -> str:
+    """Auto-increment task/bug key per project. Returns e.g. 'FE-12'."""
+    result = await db.counters.find_one_and_update(
+        {"project_id": project_id},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=True
+    )
+    return f"{prefix}-{result['seq']}"
 
 async def close_connection():
     client.close()
