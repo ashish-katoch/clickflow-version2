@@ -41,12 +41,20 @@ async def create_bug(input: BugInput, project_id: str, user=Depends(get_current_
         "status": input.status, "priority": input.priority,
         "assignee_id": input.assignee_id, "attachments": [],
         "created_by": user["_id"],
+        "created_by_name": user.get("name", ""),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "comment_count": 0,
     }
     await db.bugs.insert_one(doc)
     doc.pop("_id", None)
+    # Log "reported" activity
+    await db.comments.insert_one({
+        "id": str(uuid.uuid4()), "entity_id": doc["id"], "entity_type": "bug",
+        "user_id": user["_id"], "user_name": user.get("name", ""),
+        "content": "reported this bug", "type": "activity",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
     if input.assignee_id and input.assignee_id != user["_id"]:
         await db.notifications.insert_one({
             "id": str(uuid.uuid4()), "user_id": input.assignee_id,
@@ -64,14 +72,32 @@ async def update_bug(bug_id: str, input: BugUpdate, user=Depends(get_current_use
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.bugs.update_one({"id": bug_id}, {"$set": update_data})
+    # Log status change activity
     if "status" in update_data and update_data["status"] != old.get("status"):
+        await db.comments.insert_one({
+            "id": str(uuid.uuid4()), "entity_id": bug_id, "entity_type": "bug",
+            "user_id": user["_id"], "user_name": user.get("name", ""),
+            "content": f"changed status to {update_data['status'].replace('_', ' ').title()}",
+            "type": "activity", "created_at": datetime.now(timezone.utc).isoformat(),
+        })
         target = old.get("assignee_id") or old.get("created_by")
-        if target:
+        if target and target != user["_id"]:
             await db.notifications.insert_one({
                 "id": str(uuid.uuid4()), "user_id": target,
-                "type": "status_changed", "message": f"{old['key']} status → {update_data['status']}",
+                "type": "status_changed", "message": f"{old['key']} status changed to {update_data['status']}",
                 "link": f"/project/{old['project_id']}/bugs", "read": False,
                 "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+    # Log assignee change activity
+    if "assignee_id" in update_data and update_data["assignee_id"] != old.get("assignee_id"):
+        if update_data["assignee_id"]:
+            assignee_user = await db.users.find_one({"_id": __import__('bson').ObjectId(update_data["assignee_id"])})
+            assignee_name = assignee_user.get("name", "someone") if assignee_user else "someone"
+            await db.comments.insert_one({
+                "id": str(uuid.uuid4()), "entity_id": bug_id, "entity_type": "bug",
+                "user_id": user["_id"], "user_name": user.get("name", ""),
+                "content": f"assigned this to {assignee_name}",
+                "type": "activity", "created_at": datetime.now(timezone.utc).isoformat(),
             })
     return await db.bugs.find_one({"id": bug_id}, {"_id": 0})
 

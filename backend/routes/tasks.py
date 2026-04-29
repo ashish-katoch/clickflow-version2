@@ -39,12 +39,20 @@ async def create_task(input: TaskInput, project_id: str, user=Depends(get_curren
         "status": input.status, "priority": input.priority,
         "assignee_id": input.assignee_id, "due_date": input.due_date,
         "created_by": user["_id"],
+        "created_by_name": user.get("name", ""),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "comment_count": 0,
     }
     await db.tasks.insert_one(doc)
     doc.pop("_id", None)
+    # Log "created" activity
+    await db.comments.insert_one({
+        "id": str(uuid.uuid4()), "entity_id": doc["id"], "entity_type": "task",
+        "user_id": user["_id"], "user_name": user.get("name", ""),
+        "content": "created this task", "type": "activity",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
     if input.assignee_id and input.assignee_id != user["_id"]:
         await db.notifications.insert_one({
             "id": str(uuid.uuid4()), "user_id": input.assignee_id,
@@ -62,20 +70,40 @@ async def update_task(task_id: str, input: TaskUpdate, user=Depends(get_current_
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.tasks.update_one({"id": task_id}, {"$set": update_data})
+    # Log status change activity
     if "status" in update_data and update_data["status"] != old.get("status"):
-        await db.notifications.insert_one({
-            "id": str(uuid.uuid4()), "user_id": old.get("assignee_id") or old.get("created_by"),
-            "type": "status_changed", "message": f"{old['key']} status changed to {update_data['status']}",
-            "link": f"/project/{old['project_id']}/board", "read": False,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+        await db.comments.insert_one({
+            "id": str(uuid.uuid4()), "entity_id": task_id, "entity_type": "task",
+            "user_id": user["_id"], "user_name": user.get("name", ""),
+            "content": f"changed status to {update_data['status'].replace('_', ' ').title()}",
+            "type": "activity", "created_at": datetime.now(timezone.utc).isoformat(),
         })
-    if "assignee_id" in update_data and update_data["assignee_id"] != old.get("assignee_id") and update_data["assignee_id"]:
-        await db.notifications.insert_one({
-            "id": str(uuid.uuid4()), "user_id": update_data["assignee_id"],
-            "type": "task_assigned", "message": f"You were assigned to {old['key']}: {old['title']}",
-            "link": f"/project/{old['project_id']}/board", "read": False,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        })
+        target = old.get("assignee_id") or old.get("created_by")
+        if target and target != user["_id"]:
+            await db.notifications.insert_one({
+                "id": str(uuid.uuid4()), "user_id": target,
+                "type": "status_changed", "message": f"{old['key']} status changed to {update_data['status']}",
+                "link": f"/project/{old['project_id']}/board", "read": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+    # Log assignee change activity
+    if "assignee_id" in update_data and update_data["assignee_id"] != old.get("assignee_id"):
+        if update_data["assignee_id"]:
+            assignee_user = await db.users.find_one({"_id": __import__('bson').ObjectId(update_data["assignee_id"])})
+            assignee_name = assignee_user.get("name", "someone") if assignee_user else "someone"
+            await db.comments.insert_one({
+                "id": str(uuid.uuid4()), "entity_id": task_id, "entity_type": "task",
+                "user_id": user["_id"], "user_name": user.get("name", ""),
+                "content": f"assigned this to {assignee_name}",
+                "type": "activity", "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+            if update_data["assignee_id"] != user["_id"]:
+                await db.notifications.insert_one({
+                    "id": str(uuid.uuid4()), "user_id": update_data["assignee_id"],
+                    "type": "task_assigned", "message": f"You were assigned to {old['key']}: {old['title']}",
+                    "link": f"/project/{old['project_id']}/board", "read": False,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                })
     return await db.tasks.find_one({"id": task_id}, {"_id": 0})
 
 @router.delete("/{task_id}")
