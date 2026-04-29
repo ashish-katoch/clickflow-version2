@@ -12,6 +12,11 @@ const BUG_STATUSES = [
 ];
 const PRIORITY_DOT = { critical: 'bg-red-500', high: 'bg-orange-500', medium: 'bg-amber-400', low: 'bg-blue-400' };
 
+function getAvatarColor(name) {
+  const colors = ['bg-indigo-600','bg-emerald-600','bg-amber-600','bg-rose-600','bg-cyan-600','bg-violet-600'];
+  return colors[(name||'').split('').reduce((a,c) => a + c.charCodeAt(0), 0) % colors.length];
+}
+
 export default function AllBugsPage() {
   const { setDetailPanel } = useOutletContext();
   const [bugs, setBugs] = useState([]);
@@ -19,55 +24,62 @@ export default function AllBugsPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  const fetch = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try { const [b, m] = await Promise.all([getAllBugs(), getMembers()]); setBugs(b); setMembers(m); } catch {} finally { setLoading(false); }
   }, []);
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const filtered = filterStatus === 'all' ? bugs : bugs.filter(b => b.status === filterStatus);
 
-  if (loading) return <div className="p-6 text-zinc-500 text-sm">Loading...</div>;
+  if (loading) return <div className="p-6 text-muted-foreground text-sm">Loading...</div>;
 
   return (
     <div className="p-6" data-testid="all-bugs-page">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Manrope' }}>All Bugs</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{filtered.length} bug{filtered.length !== 1 ? 's' : ''} across all projects</p>
+          <h1 className="text-xl font-bold tracking-tight text-foreground" style={{ fontFamily: 'Manrope' }}>All Bugs</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{filtered.length} bug{filtered.length !== 1 ? 's' : ''} across all projects</p>
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="h-7 text-xs border-zinc-800 bg-transparent text-zinc-400 w-[120px]"><SelectValue /></SelectTrigger>
-          <SelectContent className="bg-zinc-900 border-zinc-800">
+          <SelectTrigger className="h-8 text-xs w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             {BUG_STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="max-w-5xl">
-        <div className="flex items-center gap-3 px-4 py-2 text-[10px] uppercase tracking-widest text-zinc-600 font-semibold border-b border-zinc-800">
-          <div className="w-20">ID</div>
-          <div className="flex-1">Title</div>
-          <div className="w-28">Project</div>
-          <div className="w-28">Status</div>
-          <div className="w-20">Priority</div>
-          <div className="w-24">Assignee</div>
+      <div className="w-full">
+        <div className="grid grid-cols-[70px_1fr_160px_120px_100px_140px] px-4 py-2.5 text-[10px] uppercase tracking-widest text-muted-foreground font-semibold border-b border-border">
+          <div>ID</div>
+          <div>Title</div>
+          <div>Project</div>
+          <div>Status</div>
+          <div>Priority</div>
+          <div>Assignee</div>
         </div>
-        {filtered.length === 0 ? <p className="text-sm text-zinc-600 p-6 text-center">No bugs found</p> : (
-          <div className="flex flex-col gap-0.5 mt-1">
+        {filtered.length === 0 ? <p className="text-sm text-muted-foreground p-6 text-center">No bugs found</p> : (
+          <div className="flex flex-col mt-0.5">
             {filtered.map(bug => {
               const statusInfo = BUG_STATUSES.find(s => s.value === bug.status) || BUG_STATUSES[0];
               const assignee = members.find(m => m.id === bug.assignee_id);
               return (
-                <div key={bug.id} onClick={() => setDetailPanel({ ...bug, type: 'bug', onRefresh: fetch, members })}
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-md hover:bg-zinc-900/40 hover:border-zinc-800 border border-transparent transition-colors cursor-pointer text-sm"
+                <div key={bug.id} onClick={() => setDetailPanel({ ...bug, type: 'bug', onRefresh: fetchData, members })}
+                  className="grid grid-cols-[70px_1fr_160px_120px_100px_140px] items-center px-4 py-3 rounded-md hover:bg-accent border-b border-border/50 transition-colors cursor-pointer text-sm"
                   data-testid={`all-bug-${bug.id}`}>
-                  <div className="w-20 text-[11px] text-zinc-600 font-mono">{bug.key}</div>
-                  <div className="flex-1 text-zinc-200 font-medium truncate">{bug.title}</div>
-                  <div className="w-28">{bug.project && <span className="text-[10px] px-2 py-0.5 rounded border border-zinc-800 text-zinc-500">{bug.project.name}</span>}</div>
-                  <div className="w-28 flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${statusInfo.dot}`} /><span className="text-xs text-zinc-400">{statusInfo.label}</span></div>
-                  <div className="w-20"><div className={`w-2 h-2 rounded-full inline-block mr-1 ${PRIORITY_DOT[bug.priority] || 'bg-zinc-600'}`} /><span className="text-xs text-zinc-500 capitalize">{bug.priority}</span></div>
-                  <div className="w-24">{assignee ? <span className="text-xs text-zinc-400">{assignee.name}</span> : <span className="text-xs text-zinc-600">--</span>}</div>
+                  <div className="text-[11px] text-muted-foreground font-mono">{bug.key}</div>
+                  <div className="text-foreground font-medium truncate pr-4">{bug.title}</div>
+                  <div>{bug.project && <span className="text-[11px] px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground truncate inline-block max-w-[140px]">{bug.project.name}</span>}</div>
+                  <div className="flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusInfo.dot}`} /><span className="text-xs text-muted-foreground">{statusInfo.label}</span></div>
+                  <div className="flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[bug.priority] || 'bg-zinc-500'}`} /><span className="text-xs text-muted-foreground capitalize">{bug.priority}</span></div>
+                  <div>{assignee ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${getAvatarColor(assignee.name)}`}>
+                        <span className="text-[8px] font-bold text-white">{assignee.name?.[0]?.toUpperCase()}</span>
+                      </div>
+                      <span className="text-xs text-foreground truncate">{assignee.name}</span>
+                    </div>
+                  ) : <span className="text-xs text-muted-foreground">--</span>}</div>
                 </div>
               );
             })}

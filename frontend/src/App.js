@@ -14,7 +14,7 @@ import DetailPanel from './components/DetailPanel';
 
 function ProtectedRoute() {
   const { user, loading } = useAuth();
-  if (loading) return <div className="flex items-center justify-center h-screen t-bg"><div className="w-6 h-6 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-screen bg-background"><div className="w-6 h-6 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" /></div>;
   if (user === false) return <Navigate to="/login" replace />;
   return <AppLayout />;
 }
@@ -22,9 +22,9 @@ function ProtectedRoute() {
 function AppLayout() {
   const [detailPanel, setDetailPanel] = useState(null);
   return (
-    <div className="flex h-screen w-full t-bg t-text overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
       <AppSidebar />
-      <div className="flex-1 flex flex-col min-w-0 t-bg-main relative">
+      <div className="flex-1 flex flex-col min-w-0 bg-background relative">
         <AppHeader />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet context={{ setDetailPanel, detailPanel }} />

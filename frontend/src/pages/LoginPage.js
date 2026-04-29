@@ -31,31 +31,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center t-bg" data-testid="login-page">
+    <div className="min-h-screen flex items-center justify-center bg-background" data-testid="login-page">
       <div className="w-full max-w-sm mx-auto">
         <div className="flex items-center gap-2.5 justify-center mb-8">
           <Hexagon size={28} className="text-indigo-500" />
           <span className="text-xl font-bold tracking-tight t-text" style={{ fontFamily: 'Manrope' }}>ClickFlow</span>
         </div>
-        <div className="border t-border rounded-lg t-surface p-6">
-          <h2 className="text-lg font-semibold tracking-tight t-text mb-1" style={{ fontFamily: 'Manrope' }}>
+        <div className="border border-border rounded-lg bg-card p-6">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground mb-1" style={{ fontFamily: 'Manrope' }}>
             {isRegister ? 'Create your account' : 'Sign in'}
           </h2>
-          <p className="text-sm t-text-secondary mb-5">
+          <p className="text-sm text-muted-foreground mb-5">
             {isRegister ? 'Register to join your workspace' : 'Welcome back to your workspace'}
           </p>
           {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-3 py-2 rounded-md mb-4" data-testid="auth-error">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-3">
             {isRegister && (
               <input data-testid="register-name-input" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" required
-                className="flex h-9 w-full rounded-md t-input px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+                className="flex h-9 w-full rounded-md border-input bg-transparent text-foreground placeholder:text-muted-foreground px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
             )}
             <input data-testid="login-email-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" required
-              className="flex h-9 w-full rounded-md t-input px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+              className="flex h-9 w-full rounded-md border-input bg-transparent text-foreground placeholder:text-muted-foreground px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
             <input data-testid="login-password-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required
-              className="flex h-9 w-full rounded-md t-input px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+              className="flex h-9 w-full rounded-md border-input bg-transparent text-foreground placeholder:text-muted-foreground px-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400" />
             <button type="submit" disabled={loading} data-testid="login-submit-btn"
-              className="h-9 w-full rounded-md t-btn-primary text-sm font-medium transition-colors disabled:opacity-50">
+              className="h-9 w-full rounded-md bg-primary text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">
               {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
             </button>
           </form>
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </div>
         </div>
         {!isRegister && (
-          <p className="text-xs t-text-muted text-center mt-4">
+          <p className="text-xs text-muted-foreground text-center mt-4">
             Demo: admin@clickflow.com / admin123
           </p>
         )}
